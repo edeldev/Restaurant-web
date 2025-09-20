@@ -9,7 +9,7 @@ export const Layout = () => {
   return (
     <>
       <header className="container mx-auto px-5 xl:px-0 py-5 flex justify-between items-center">
-        <div className="flex-1">
+        <div className="flex-1 z-60">
           <Link to="/" className="font-bold text-lg uppercase">
             <img
               src="/logo.webp"

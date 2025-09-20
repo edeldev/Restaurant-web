@@ -61,7 +61,6 @@ export const Details = () => {
     if (deliveryType === "delivery")
       message += `*Costo de entrega:* $${deliveryFee}\n`;
     message += `*Total a pagar:* $${total}\n\n`;
-    message += `¡Gracias por tu pedido! Le avisamos cuando este listo.`;
 
     const whatsappURL = `https://wa.me/528123697420?text=${encodeURIComponent(
       message

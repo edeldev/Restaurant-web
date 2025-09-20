@@ -37,7 +37,7 @@ const imageVariants = {
 };
 
 export const CardGrid = ({ items }) => {
-  const { setOpenCart, addToCart } = useCart();
+  const { addToCart } = useCart();
   const [selectedSauce, setSelectedSauce] = useState({});
   const { enqueueSnackbar } = useSnackbar();
 
@@ -66,25 +66,7 @@ export const CardGrid = ({ items }) => {
       ...item,
       selectedSauce: selectedSauce[item.id] || null,
     });
-    setOpenCart(true);
     setSelectedSauce({});
-
-    enqueueSnackbar(
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.3 }}
-        className="text-white font-medium"
-      >
-        ✅ {item.text} agregado al carrito
-      </motion.div>,
-      {
-        variant: "success",
-        autoHideDuration: 2000,
-        anchorOrigin: { vertical: "top", horizontal: "center" },
-      }
-    );
   };
 
   return (

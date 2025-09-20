@@ -13,14 +13,14 @@ export const Cart = () => {
     <AnimatePresence>
       {openCart && (
         <motion.div
-          className="fixed inset-0 bg-black/40 z-40"
+          className="fixed inset-0 bg-black/40 z-70"
           onClick={() => setOpenCart(false)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="absolute top-0 right-0 w-full sm:w-120 h-full bg-[#FFFFFFCC] backdrop-blur-sm text-black shadow-lg flex flex-col p-6 z-50"
+            className="absolute top-0 right-0 w-full sm:w-120 h-full bg-[#FFFFFFCC] backdrop-blur-sm text-black shadow-lg flex flex-col p-6 z-80"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
