@@ -8,6 +8,12 @@ export const Customize = () => {
   const [selected, setSelected] = useState(properties[0]);
   const [selectedIngredients, setSelectedIngredients] = useState([]);
 
+  const toggleIngredient = (id) => {
+    setSelectedIngredients((prev) =>
+      prev.includes(id) ? prev.filter((ing) => ing !== id) : [...prev, id]
+    );
+  };
+
   return (
     <Container id="customize">
       <h2 className="text-3xl font-semibold text-center mb-10">

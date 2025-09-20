@@ -4,10 +4,12 @@ export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [openCart, setOpenCart] = useState(false);
+  const [openCartPreview, setOpenCartPreview] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
     const stored = localStorage.getItem("cart");
     return stored ? JSON.parse(stored) : [];
   });
+  const [lastAddedItem, setLastAddedItem] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
@@ -22,6 +24,7 @@ export const CartProvider = ({ children }) => {
       );
 
       if (exists) {
+        setLastAddedItem({ ...exists, qty: 1 });
         return prev.map((p) =>
           p.id === item.id &&
           (p.selectedSauce || null) === (item.selectedSauce || null)
@@ -30,8 +33,18 @@ export const CartProvider = ({ children }) => {
         );
       }
 
-      return [...prev, { ...item, qty: 1 }];
+      const newItem = { ...item, qty: 1 };
+      setLastAddedItem(newItem);
+      return [...prev, newItem];
     });
+
+    setOpenCartPreview(true);
+    if (window.innerWidth >= 768) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   const removeFromCart = (itemToRemove) => {
@@ -75,6 +88,9 @@ export const CartProvider = ({ children }) => {
         totalPrice,
         openCart,
         setOpenCart,
+        openCartPreview,
+        setOpenCartPreview,
+        lastAddedItem,
       }}
     >
       {children}

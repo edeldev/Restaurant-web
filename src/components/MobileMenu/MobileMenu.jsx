@@ -9,14 +9,14 @@ export const MobileMenu = ({ open, setOpen }) => {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-70 lg:hidden"
           onClick={() => setOpen(false)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="absolute top-0 right-0 w-64 h-full bg-white text-black shadow-lg flex flex-col p-6 z-50"
+            className="absolute top-0 right-0 w-64 h-full bg-white text-black shadow-lg flex flex-col p-6 z-80"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
