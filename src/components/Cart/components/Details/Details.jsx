@@ -145,7 +145,7 @@ export const Details = () => {
     const whatsappURL = `https://wa.me/528123697420?text=${encodeURIComponent(
       message
     )}`;
-    window.open(whatsappURL, "_blank");
+    window.open(whatsappURL);
 
     // --------------------------
     // 4. Reset carrito
