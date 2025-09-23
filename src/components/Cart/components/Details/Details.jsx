@@ -60,6 +60,7 @@ export const Details = () => {
       address,
       formattedDate,
     });
+
     const message = buildWhatsappMessage({
       name,
       phone,
@@ -73,7 +74,12 @@ export const Details = () => {
     });
 
     try {
-      const res = await fetch(
+      const whatsappURL = `https://wa.me/528123697420?text=${encodeURIComponent(
+        message
+      )}`;
+      window.open(whatsappURL, "_blank");
+
+      await fetch(
         "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
         {
           method: "POST",
@@ -85,25 +91,21 @@ export const Details = () => {
         }
       );
 
-      if (!res.ok) throw new Error("Error al guardar en Sheets");
+      setCartItems([]);
+      localStorage.removeItem("cart");
+      setOpenCart(false);
 
-      const whatsappURL = `https://wa.me/528123697420?text=${encodeURIComponent(
-        message
-      )}`;
-      window.open(whatsappURL, "_blank");
+      enqueueSnackbar("¡Pedido enviado a WhatsApp! 🎉", {
+        variant: "success",
+      });
     } catch (err) {
       console.error("Error:", err);
-      enqueueSnackbar("No se pudo guardar el pedido, inténtalo de nuevo.", {
-        variant: "error",
+      enqueueSnackbar("No se guardo el pedido. Intentalo de nuevo.", {
+        variant: "warning",
       });
     } finally {
       setLoading(false);
     }
-
-    setCartItems([]);
-    localStorage.removeItem("cart");
-    setOpenCart(false);
-    enqueueSnackbar("¡Orden lista para procesar! 🎉", { variant: "success" });
   };
 
   return (
