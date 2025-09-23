@@ -82,10 +82,7 @@ export const Details = () => {
       total: totalPrice + (deliveryType === "delivery" ? 20 : 0),
     });
 
-    window.open(
-      `https://wa.me/528123697420?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+    const waWindow = window.open("");
 
     fetch(
       "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
@@ -105,12 +102,21 @@ export const Details = () => {
         enqueueSnackbar("¡Pedido enviado correctamente! 🎉", {
           variant: "success",
         });
+
+        if (waWindow) {
+          waWindow.location.href = `https://wa.me/528123697420?text=${encodeURIComponent(
+            message
+          )}`;
+        }
       })
       .catch((err) => {
         console.error("Error:", err);
-        enqueueSnackbar("Hubo un error.", {
+        enqueueSnackbar("Hubo un error al guardar el pedido.", {
           variant: "warning",
         });
+        if (waWindow) {
+          waWindow.close();
+        }
       })
       .finally(() => setLoading(false));
   };
