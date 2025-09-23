@@ -3,6 +3,10 @@ import { useSnackbar } from "notistack";
 import { useCart } from "../../../../hooks/useCart";
 import { IconLoader } from "@tabler/icons-react";
 
+import { formatDate } from "../../../../utils";
+import { buildOrderData } from "../../../../utils/buildOrderData";
+import { buildWhatsappMessage } from "../../../../utils/buildWhatsappMessage";
+
 export const Details = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { totalPrice, cartItems, setCartItems, setOpenCart } = useCart();
@@ -16,33 +20,6 @@ export const Details = () => {
 
   const deliveryFee = deliveryType === "delivery" ? 20 : 0;
   const total = totalPrice + deliveryFee;
-
-  const formatFecha = (date) => {
-    const meses = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre",
-    ];
-
-    let dia = date.getDate();
-    let mes = meses[date.getMonth()];
-    let año = date.getFullYear();
-    let horas = date.getHours();
-    let minutos = date.getMinutes().toString().padStart(2, "0");
-    let ampm = horas >= 12 ? "pm" : "am";
-    horas = horas % 12 || 12; // convierte 0 en 12
-
-    return `${dia} de ${mes} del ${año} ${horas}:${minutos}${ampm}`;
-  };
 
   const handlePay = async (e) => {
     e.preventDefault();
@@ -70,90 +47,62 @@ export const Details = () => {
       });
 
     const today = new Date();
-    const formattedDate = formatFecha(today); // legible
+    const formattedDate = formatDate(today);
     const isoDate = today.toISOString();
 
-    // --------------------------
-    // 1. Preparar datos del pedido
-    // --------------------------
-    const orderData = {
-      nombre: name,
-      telefono: phone,
-      pedido: cartItems
-        .map(
-          (item) =>
-            `${item.text} ${
-              item.selectedSauce ? `(${item.selectedSauce})` : ""
-            } x${item.qty} = $${item.price * item.qty}`
-        )
-        .join("\n"),
-      precio: total,
-      metodoPago: paymentMethod === "cash" ? "Efectivo" : "Transferencia",
-      tipoEntrega:
-        deliveryType === "delivery" ? "Domicilio" : "Recoger en restaurante",
-      direccion: deliveryType === "delivery" ? address : "",
-      fecha: formattedDate, // ✅ ahora en formato legible
-    };
+    const orderData = buildOrderData({
+      name,
+      phone,
+      cartItems,
+      total,
+      paymentMethod,
+      deliveryType,
+      address,
+      formattedDate,
+    });
+    const message = buildWhatsappMessage({
+      name,
+      phone,
+      formattedDate,
+      orderData,
+      cartItems,
+      totalPrice,
+      deliveryType,
+      address,
+      total,
+    });
 
     try {
-      // --------------------------
-      // 2. Enviar a Google Sheets
-      // --------------------------
-      await fetch(
+      const res = await fetch(
         "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
         {
           method: "POST",
           body: JSON.stringify({
             ...orderData,
-            fecha: isoDate, // ✅ usar ISO para crear hoja
-            fechaLegible: formattedDate, // ✅ usar legible en la fila
+            fecha: isoDate,
+            fechaLegible: formattedDate,
           }),
         }
       );
+
+      if (!res.ok) throw new Error("Error al guardar en Sheets");
+
+      const whatsappURL = `https://wa.me/528123697420?text=${encodeURIComponent(
+        message
+      )}`;
+      window.open(whatsappURL, "_blank");
     } catch (err) {
-      console.error("Error al guardar en Sheets:", err);
+      console.error("Error:", err);
+      enqueueSnackbar("No se pudo guardar el pedido, inténtalo de nuevo.", {
+        variant: "error",
+      });
     } finally {
       setLoading(false);
     }
 
-    // --------------------------
-    // 3. Generar mensaje para WhatsApp
-    // --------------------------
-
-    let message = `*¡Nuevo pedido!* \n\n`;
-    message += `*Nombre:* ${name}\n`;
-    message += `*Teléfono:* ${phone}\n`;
-    message += `*Fecha:* ${formattedDate}\n`;
-    message += `*Método de pago:* ${orderData.metodoPago}\n`;
-    message += `*Tipo de entrega:* ${orderData.tipoEntrega}\n`;
-
-    if (deliveryType === "delivery") {
-      message += `*Dirección:* ${address}\n`;
-    }
-
-    message += `\n*Productos:*\n`;
-    cartItems.forEach((item, i) => {
-      message += `${i + 1}. ${item.text} ${
-        item.selectedSauce ? `(${item.selectedSauce})` : ""
-      } x${item.qty} = $${item.price * item.qty}\n`;
-    });
-
-    message += `\n*Subtotal:* $${totalPrice}\n`;
-    if (deliveryType === "delivery") message += `*Costo de entrega:* $20\n`;
-    message += `*Total a pagar:* $${total}\n\n`;
-
-    const whatsappURL = `https://wa.me/528123697420?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappURL);
-
-    // --------------------------
-    // 4. Reset carrito
-    // --------------------------
     setCartItems([]);
     localStorage.removeItem("cart");
     setOpenCart(false);
-
     enqueueSnackbar("¡Orden lista para procesar! 🎉", { variant: "success" });
   };
 
@@ -174,7 +123,6 @@ export const Details = () => {
         />
       </div>
 
-      {/* Teléfono */}
       <div className="flex flex-col gap-2">
         <label className="font-medium text-gray-700">Número de teléfono</label>
         <input
