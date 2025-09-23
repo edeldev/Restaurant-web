@@ -23,37 +23,33 @@ export const Details = () => {
 
   const handlePay = (e) => {
     e.preventDefault();
-    setLoading(true);
 
     if (!name.trim()) {
       enqueueSnackbar("Por favor ingresa un nombre.", { variant: "warning" });
-      setLoading(false);
       return;
     }
     if (!phone.trim()) {
       enqueueSnackbar("Por favor ingresa un número de teléfono.", {
         variant: "warning",
       });
-      setLoading(false);
       return;
     }
     if (!deliveryType) {
       enqueueSnackbar("Selecciona un tipo de entrega.", { variant: "warning" });
-      setLoading(false);
       return;
     }
     if (deliveryType === "delivery" && !address.trim()) {
       enqueueSnackbar("Ingresa la dirección para el envío.", {
         variant: "warning",
       });
-      setLoading(false);
       return;
     }
     if (!paymentMethod) {
       enqueueSnackbar("Selecciona un método de pago.", { variant: "warning" });
-      setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     const today = new Date();
     const formattedDate = formatDate(today);
@@ -82,7 +78,10 @@ export const Details = () => {
       total: totalPrice + (deliveryType === "delivery" ? 20 : 0),
     });
 
-    const waWindow = window.open("");
+    const whatsappUrl = `https://wa.me/528123697420?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
 
     fetch(
       "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
@@ -96,27 +95,16 @@ export const Details = () => {
       }
     )
       .then(() => {
-        setCartItems([]);
-        localStorage.removeItem("cart");
-        setOpenCart(false);
-        enqueueSnackbar("¡Pedido enviado correctamente! 🎉", {
+        enqueueSnackbar("Pedido guardado y enviado a WhatsApp ✅", {
           variant: "success",
         });
-
-        if (waWindow) {
-          waWindow.location.href = `https://wa.me/528123697420?text=${encodeURIComponent(
-            message
-          )}`;
-        }
+        setCartItems([]);
+        setOpenCart(false);
       })
-      .catch((err) => {
-        console.error("Error:", err);
+      .catch(() => {
         enqueueSnackbar("Hubo un error al guardar el pedido.", {
-          variant: "warning",
+          variant: "error",
         });
-        if (waWindow) {
-          waWindow.close();
-        }
       })
       .finally(() => setLoading(false));
   };
