@@ -21,30 +21,39 @@ export const Details = () => {
   const deliveryFee = deliveryType === "delivery" ? 20 : 0;
   const total = totalPrice + deliveryFee;
 
-  const handlePay = async (e) => {
+  const handlePay = (e) => {
     e.preventDefault();
     setLoading(true);
 
-    if (!name.trim())
-      return enqueueSnackbar("Por favor ingresa un nombre.", {
+    if (!name.trim()) {
+      enqueueSnackbar("Por favor ingresa un nombre.", { variant: "warning" });
+      setLoading(false);
+      return;
+    }
+    if (!phone.trim()) {
+      enqueueSnackbar("Por favor ingresa un número de teléfono.", {
         variant: "warning",
       });
-    if (!phone.trim())
-      return enqueueSnackbar("Por favor ingresa un número de teléfono.", {
+      setLoading(false);
+      return;
+    }
+    if (!deliveryType) {
+      enqueueSnackbar("Selecciona un tipo de entrega.", { variant: "warning" });
+      setLoading(false);
+      return;
+    }
+    if (deliveryType === "delivery" && !address.trim()) {
+      enqueueSnackbar("Ingresa la dirección para el envío.", {
         variant: "warning",
       });
-    if (!deliveryType)
-      return enqueueSnackbar("Selecciona un tipo de entrega.", {
-        variant: "warning",
-      });
-    if (deliveryType === "delivery" && !address.trim())
-      return enqueueSnackbar("Ingresa la dirección para el envío.", {
-        variant: "warning",
-      });
-    if (!paymentMethod)
-      return enqueueSnackbar("Selecciona un método de pago.", {
-        variant: "warning",
-      });
+      setLoading(false);
+      return;
+    }
+    if (!paymentMethod) {
+      enqueueSnackbar("Selecciona un método de pago.", { variant: "warning" });
+      setLoading(false);
+      return;
+    }
 
     const today = new Date();
     const formattedDate = formatDate(today);
@@ -54,7 +63,7 @@ export const Details = () => {
       name,
       phone,
       cartItems,
-      total,
+      total: totalPrice + (deliveryType === "delivery" ? 20 : 0),
       paymentMethod,
       deliveryType,
       address,
@@ -70,42 +79,40 @@ export const Details = () => {
       totalPrice,
       deliveryType,
       address,
-      total,
+      total: totalPrice + (deliveryType === "delivery" ? 20 : 0),
     });
 
-    try {
-      const whatsappURL = `https://wa.me/528123697420?text=${encodeURIComponent(
-        message
-      )}`;
-      window.open(whatsappURL, "_blank");
+    window.open(
+      `https://wa.me/528123697420?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
 
-      await fetch(
-        "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            ...orderData,
-            fecha: isoDate,
-            fechaLegible: formattedDate,
-          }),
-        }
-      );
-
-      setCartItems([]);
-      localStorage.removeItem("cart");
-      setOpenCart(false);
-
-      enqueueSnackbar("¡Pedido enviado a WhatsApp! 🎉", {
-        variant: "success",
-      });
-    } catch (err) {
-      console.error("Error:", err);
-      enqueueSnackbar("No se guardo el pedido. Intentalo de nuevo.", {
-        variant: "warning",
-      });
-    } finally {
-      setLoading(false);
-    }
+    fetch(
+      "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          ...orderData,
+          fecha: isoDate,
+          fechaLegible: formattedDate,
+        }),
+      }
+    )
+      .then(() => {
+        setCartItems([]);
+        localStorage.removeItem("cart");
+        setOpenCart(false);
+        enqueueSnackbar("¡Pedido enviado correctamente! 🎉", {
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        enqueueSnackbar("Hubo un error.", {
+          variant: "warning",
+        });
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
