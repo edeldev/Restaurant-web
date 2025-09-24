@@ -102,7 +102,7 @@ export const Details = () => {
         enqueueSnackbar("Pedido guardado ✅", { variant: "success" });
       })
       .catch(() => {
-        enqueueSnackbar("Error al guardar el pedido ❌", { variant: "error" });
+        console.log("Error de google sheets");
       });
   };
 
