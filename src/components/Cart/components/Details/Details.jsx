@@ -21,7 +21,7 @@ export const Details = () => {
   const deliveryFee = deliveryType === "delivery" ? 20 : 0;
   const total = totalPrice + deliveryFee;
 
-  const handlePay = async (e) => {
+  const handlePay = (e) => {
     e.preventDefault();
 
     if (!name.trim()) {
@@ -82,8 +82,10 @@ export const Details = () => {
       message
     )}`;
 
-    try {
-      await fetch(
+    window.open(whatsappUrl, "_blank");
+
+    setTimeout(() => {
+      fetch(
         "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
         {
           method: "POST",
@@ -93,21 +95,21 @@ export const Details = () => {
             fechaLegible: formattedDate,
           }),
         }
-      );
-
-      enqueueSnackbar("Pedido guardado ✅", { variant: "success" });
-
-      window.open(whatsappUrl, "_blank");
-
-      setCartItems([]);
-      setOpenCart(false);
-    } catch {
-      enqueueSnackbar("Hubo un error al guardar el pedido.", {
-        variant: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
+      )
+        .then(() => {
+          enqueueSnackbar("Pedido guardado correctamente", {
+            variant: "success",
+          });
+          setCartItems([]);
+          setOpenCart(false);
+        })
+        .catch(() => {
+          enqueueSnackbar("Hubo un error al guardar el pedido.", {
+            variant: "error",
+          });
+        })
+        .finally(() => setLoading(false));
+    }, 300);
   };
 
   return (
