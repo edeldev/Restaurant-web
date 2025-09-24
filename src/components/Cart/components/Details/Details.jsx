@@ -81,35 +81,29 @@ export const Details = () => {
     const whatsappUrl = `https://wa.me/528123697420?text=${encodeURIComponent(
       message
     )}`;
-
     window.open(whatsappUrl, "_blank");
 
-    setTimeout(() => {
-      fetch(
-        "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            ...orderData,
-            fecha: isoDate,
-            fechaLegible: formattedDate,
-          }),
-        }
-      )
-        .then(() => {
-          enqueueSnackbar("Pedido guardado correctamente", {
-            variant: "success",
-          });
-          setCartItems([]);
-          setOpenCart(false);
-        })
-        .catch(() => {
-          enqueueSnackbar("Hubo un error al guardar el pedido.", {
-            variant: "error",
-          });
-        })
-        .finally(() => setLoading(false));
-    }, 300);
+    setCartItems([]);
+    setOpenCart(false);
+    setLoading(false);
+
+    fetch(
+      "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          ...orderData,
+          fecha: isoDate,
+          fechaLegible: formattedDate,
+        }),
+      }
+    )
+      .then(() => {
+        enqueueSnackbar("Pedido guardado ✅", { variant: "success" });
+      })
+      .catch(() => {
+        enqueueSnackbar("Error al guardar el pedido ❌", { variant: "error" });
+      });
   };
 
   return (
