@@ -14,7 +14,7 @@ export const ScrollToTop = () => {
         }
       }
 
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0 });
     }, 0);
   }, [pathname, hash]);
 
