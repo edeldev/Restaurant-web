@@ -6,6 +6,7 @@ export { Customize } from "./Customize";
 export { Menu } from "./Menu";
 export { Ubication } from "./Ubication";
 export { Cart } from "./Cart";
+export { ScrollToTop } from "./ScrollToTop";
 export * from "./Orders";
 export * from "./ui";
 export * from "./layout";
