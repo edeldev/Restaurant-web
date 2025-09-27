@@ -78,7 +78,7 @@ export const Details = () => {
       total: totalPrice + (deliveryType === "delivery" ? 20 : 0),
     });
 
-    const whatsappUrl = `https://wa.me/528123697420?text=${encodeURIComponent(
+    const whatsappUrl = `https://wa.me/528120122416?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappUrl, "_blank");
@@ -88,7 +88,7 @@ export const Details = () => {
     setLoading(false);
 
     fetch(
-      "https://script.google.com/macros/s/AKfycbxeXoOFdhM6edeP52caamD5fnVgX8prHyhnWnuIiYPYIAXq0cw5vrtr8R6CFiW4tO_F/exec",
+      "https://script.google.com/macros/s/AKfycbx0c7aaG3ShrrCm6KEuKsfXPYdfYjnS8Bo1uN4nwqmi-PZniQsS3OWJhEP4R1DNVz0l/exec",
       {
         method: "POST",
         body: JSON.stringify({
@@ -99,6 +99,7 @@ export const Details = () => {
       }
     )
       .then(() => {
+        console.log("res", res);
         enqueueSnackbar("Pedido guardado ✅", { variant: "success" });
       })
       .catch(() => {
